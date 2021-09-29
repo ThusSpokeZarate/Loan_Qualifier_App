@@ -9,9 +9,11 @@ Example:
 import sys
 import fire
 import questionary
+import csv
 from pathlib import Path
 
 from qualifier.utils.fileio import load_csv
+from qualifier.utils.fileio import save_csv
 
 from qualifier.utils.calculators import (
     calculate_monthly_debt_ratio,
@@ -109,7 +111,30 @@ def save_qualifying_loans(qualifying_loans):
         qualifying_loans (list of lists): The qualifying bank loans.
     """
     # @TODO: Complete the usability dialog for savings the CSV Files.
-    # YOUR CODE HERE!
+
+    save_confirmation = questionary.confirm("Do you want to save your list of qualifying loans? (.csv):").ask()
+    save_confirmation = bool(save_confirmation)
+    if save_confirmation ==  True:
+        csvpath = questionary.text("Where would you like to save the .csv file? (enter file path):").ask()
+        csvpath = Path(csvpath)
+        if not csvpath.exists():
+            print(f"Oops! Can't find this path: {csvpath}")
+            csvpath = questionary.text("Try again. Where would you like to save your list of qualifying loans? (enter file path):").ask()
+            csvpath = Path(csvpath)
+            if not csvpath.exists():
+                print(f"We still can't locate the file path you entered. Please determine a valid file path and start over.")
+    if save_confirmation == False:
+        sys.exit(f"Thank you for using our Loan Qualifier Application.  Enjoy the rest of your day!")
+
+
+    save_csv(csvpath, qualifying_loans)
+        
+    
+
+    
+            
+
+
 
 
 def run():
@@ -125,7 +150,6 @@ def run():
     qualifying_loans = find_qualifying_loans(
         bank_data, credit_score, debt, income, loan_amount, home_value
     )
-
     # Save qualifying loans
     save_qualifying_loans(qualifying_loans)
 
